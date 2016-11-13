@@ -1,0 +1,74 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+
+namespace Game2.Component
+{
+    public abstract class MathComponentModel : SuperComponentModel
+    {
+        
+        public MathComponentModel(double sizemod) : base(sizemod)
+        {
+            
+            init();
+        }
+
+        private Thickness _leftOutMargin = new Thickness();
+        public Thickness LeftOutMargin { get { return _leftOutMargin; } set { _leftOutMargin = value; OnPropertyChanged("LeftOutMargin"); } }
+        private string _leftOut = "  ";
+        public string LeftOut { get { return _leftOut; } set { _leftOut = value; OnPropertyChanged("LeftOut"); } }
+        private int _outFontSize = 10;
+        public int OutFontSize { get { return _outFontSize; } set { _outFontSize = value; OnPropertyChanged("OutFontSize"); } }
+        private Visibility _outVisibility = Visibility.Visible;
+        public Visibility OutVisibility { get { return _outVisibility; } set { _outVisibility = value; OnPropertyChanged("OutVisibility"); } }
+        private SolidColorBrush _outColor = Game2.Connector.ConnectorModel.Green;
+        public SolidColorBrush OutColor { get { return _outColor; } set { _outColor = value; OnPropertyChanged("OutColor"); } }
+
+        private Visibility _lockVisibility = Visibility.Collapsed;
+        public Visibility LockVisibility { get { return _lockVisibility; } set { _lockVisibility = value; OnPropertyChanged("LockVisibility"); } }
+
+        private double _compOpacity = 1;
+        public double CompOpacity { get { return _compOpacity; } set { _compOpacity = value; OnPropertyChanged("CompOpacity"); } }
+
+        public AnchorPoint CurrentAnchorPoint;
+
+        private int _xpos;
+        public override int X { get { return _xpos; } set { if (!Playable) { return; } _xpos = value; OnPropertyChanged("X"); } }
+        private int _ypos;
+        public override int Y { get { return _ypos; } set { if (!Playable) { return; } _ypos = value; OnPropertyChanged("Y"); } }
+
+        private string _tag = "";
+        public string MainTag { get { return _tag; } set { _tag = value; OnPropertyChanged("MainTag"); } }
+
+        public abstract List<int> MathFunc(int[] l);
+        public override int GetOut()
+        {
+            return MathFunc(GetIn())[0];
+        }
+        
+        private bool _isInToolbox = false;
+        public bool IsInToolbox { get { return _isInToolbox; } set { _isInToolbox = value; } }
+        
+        private Game2.MainPage.ComponentSizeType _type = MainPage.ComponentSizeType.Large;
+        public Game2.MainPage.ComponentSizeType Type { get { return _type; } set { _type = value; } }
+
+        protected abstract void init(); 
+        public int[] GetIn()
+        {
+            int[] l = new int[2];
+            if (In[0] != null)
+                l[0] = In[0].GetOut();
+            if (In[1] != null)
+                l[1] = In[1].GetOut();
+            return l;
+        }   
+    }
+}

@@ -1,0 +1,45 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using Game2;
+using Game2.Component;
+using Game2.Component.StaticComponents.BoardIn;
+using Game2.Component.StaticComponents.BoardOut;
+
+namespace Game2
+{
+    public class GridPoint : BasePoint
+    {
+        public GridPoint(double x, double y) 
+        {
+            _x = x;
+            _y = y;
+        }
+
+        private MainPage.GridStatus _status = MainPage.GridStatus.isFree;
+        public MainPage.GridStatus Status { get { return _status; } set { _previousStatus = _status; _status = value; if (value == MainPage.GridStatus.gotConnector) { PointVisibility = Visibility.Collapsed; } } }
+        private MainPage.GridStatus _previousStatus = MainPage.GridStatus.isFree;
+        public MainPage.GridStatus PreviousStatus { get { return _previousStatus; } set { _previousStatus = value; } }
+
+        //public MainPage parentWindow = null; //collection!!! ONLY FOR DEBUGGING SMART-CONNECTORS
+        //public int SpotInList; //collection!!! ONLY FOR DEBUGGING SMART-CONNECTORS
+
+        public SuperComponentModel OccupyingComponent { get; set; }
+        private int _occupyingComponentLegIndex = -1;
+        public int OccupyingComponentLegIndex { get { return _occupyingComponentLegIndex; } set { _occupyingComponentLegIndex = value; } }
+
+        public Tuple<Ellipse, Ellipse> VisualGP;
+        private Visibility _holeVisibility = Visibility.Collapsed;
+        public Visibility HoleVisibility { get { return _holeVisibility; } set { _holeVisibility = value; VisualGP.Item2.Visibility = _holeVisibility; } } 
+        private Visibility _pointVisiblity = Visibility.Visible;
+        public Visibility PointVisibility { get { return _pointVisiblity; } set { _pointVisiblity = value; VisualGP.Item1.Visibility = _pointVisiblity; } } 
+        
+    }
+}

@@ -1,0 +1,328 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+
+namespace Game2.Connector
+{
+    public partial class Connector : UserControl
+    {
+        public Connector()
+        {
+            InitializeComponent();
+        }
+
+        private MainPage _parentWindow;
+        private ConnectorModel _owningModel;
+        private bool _leftDown = false;
+        //private Point _startingPoint = new Point();
+        private Point _endPoint = new Point();
+        //private ConnectorModel.TowardsDirections _arrowDirection = ConnectorModel.TowardsDirections.NoDirection, _oldArrowDirection;
+
+        private void ArrowHeadLeftMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_owningModel == null)
+                _owningModel = (ConnectorModel)lightLine.GetBindingExpression(Polyline.StrokeThicknessProperty).DataItem;
+            if (!_owningModel.IsReadyToBeUsed)
+                return;
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            if (_parentWindow.IsInDeleteMode)
+                LineMouseDown(sender, e);
+            hitBox.CaptureMouse();
+            _leftDown = true;
+            //_startingPoint = e.GetPosition(this.LayoutRoot);
+            //_owningModel.XTarget = _startingPoint.X;
+            //_owningModel.YTarget = _startingPoint.Y;
+        }
+        protected void ArrowHeadMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_owningModel == null)
+                _owningModel = (ConnectorModel)lightLine.GetBindingExpression(Polyline.StrokeThicknessProperty).DataItem;
+
+            if (!(_leftDown) /*|| _startingPoint == new Point(0, 0)*/) return;
+            //_oldEndPoint = _endPoint;
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            if (_parentWindow.IsInDeleteMode)
+                return;
+            var mousePosition = e.GetPosition(_parentWindow.MainCanvas);
+            _owningModel.XTarget = (int)(mousePosition.X);// - _startingPoint.X);
+            _owningModel.YTarget = (int)(mousePosition.Y);// - _startingPoint.Y);
+            if (_endPoint == null) _endPoint = new Point();
+            _endPoint.X = (mousePosition.X);// - _startingPoint.X);
+            _endPoint.Y = (mousePosition.Y);// - _startingPoint.Y);
+            _parentWindow.CurrentlyMovingConnector = _owningModel;
+            //MessageBox.Show("mpx: " + mousePosition.X + " mpy: " + mousePosition.Y + " spx: " + _startingPoint.X + " spy: " + _startingPoint.Y + " epx: " + _endPoint.X + " epy: " + _endPoint.Y);
+
+
+            //_oldArrowDirection = _arrowDirection;
+            //_arrowDirection = _owningModel.GetCorrectTowardsDirection();
+            //fire kun denne når direction ændre sig
+            //if (_oldArrowDirection == ConnectorModel.TowardsDirections.NoDirection || _arrowDirection != _oldArrowDirection)
+                _owningModel.MakeArrowHead(/*_arrowDirection*/);
+        }
+        private void ArrowHeadMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_owningModel == null)
+                _owningModel = (ConnectorModel)lightLine.GetBindingExpression(Polyline.StrokeThicknessProperty).DataItem;
+            if (!_owningModel.IsReadyToBeUsed)
+            {
+                hitBox.ReleaseMouseCapture();
+                return;
+            }
+
+            hitBox.ReleaseMouseCapture();
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            _leftDown = false;
+            if (_parentWindow.SmartConnectorsOn)
+            {
+                ConnectDirectlyToTargetedGridPoint();
+                return;
+            }
+            GridPoint closest = _parentWindow.ClosestGridPoint(_endPoint, _owningModel.SourceGridPoint);
+            if (!(_owningModel.ValidatingGridPointForConnection(closest, _parentWindow.IsInDeleteMode, _owningModel, _parentWindow.ConnectorList, _parentWindow.MainPageUpdateLayout, _parentWindow.ComponentList, _parentWindow.FixedComponentList)))
+                return;
+            _owningModel.XTarget = (int)(closest.X);
+            _owningModel.YTarget = (int)(closest.Y);
+            _owningModel.MakeArrowHead(/*_owningModel.GetCorrectTowardsDirection()*/);
+            //_startingPoint = new Point(0, 0);
+
+            _owningModel.CreateNewConnectorAndAssociatedTasks(closest, _parentWindow.SizeType, _parentWindow.ConnectorList, _parentWindow.EvaluateSystem);
+            //ConnectorModel cm;
+            //if (closest.Status == MainPage.GridStatus.isFree)
+            //{
+            //    cm = new ConnectorModel(closest.X, closest.Y, _owningModel.SourceComponent, closest, _owningModel);
+            //    parentWindow.ConnectorList.Add(cm);
+            //    _owningModel.TargetConnector = cm;                
+            //}
+            //else if (closest.Status == MainPage.GridStatus.gotFreeInputComponentPin)
+            //{
+            //    closest.OccupyingComponent.In[closest.OccupyingComponentLegIndex] = _owningModel.SourceComponent;
+            //    _owningModel.ReachedEnd = true;
+            //    //only works for non-rotating components, with input always on top.
+            //    _owningModel.SetCorrectConnectorEnding((int)parentWindow.SizeType);
+
+            //    if (closest.OccupyingComponent.HasInputs)
+            //    {
+            //        foreach(ConnectorModel conmodel in parentWindow.ConnectorList)
+            //        {
+            //            if (conmodel.SourceComponent == closest.OccupyingComponent)
+            //                conmodel.SetColorToGreen(true);
+            //        }
+            //    }
+
+            //    //dummy to ensure we get correct information about the final gridpoint of a series of connectors
+            //    cm = new ConnectorModel(closest.X, closest.Y, _owningModel.SourceComponent, closest, _owningModel);
+            //    parentWindow.ConnectorList.Add(cm);
+            //    _owningModel.TargetConnector = cm;
+            //    cm.IsReadyToBeUsed = false;
+            //}
+
+            //_owningModel.SetColorToGreen(_owningModel.SourceComponent.HasInputs);
+
+
+            //_owningModel.IsReadyToBeUsed = false;
+            //_owningModel.SourceGridPoint.HoleVisibility = Visibility.Visible;
+            //if (parentWindow.SizeType != LevelSpecification.GridSizeTotal.large)
+            //    _owningModel.SourceGridPoint.PointVisibility = System.Windows.Visibility.Collapsed;
+            //closest.Status = MainPage.GridStatus.gotConnector;
+        }
+        private void ConnectDirectlyToTargetedGridPoint()
+        {
+            GridPoint endGridPoint = _parentWindow.ClosestGridPoint(_endPoint, _owningModel.SourceGridPoint, true);
+            if (!(_owningModel.ValidatingGridPointForConnection(endGridPoint, _parentWindow.IsInDeleteMode, _owningModel, _parentWindow.ConnectorList, _parentWindow.MainPageUpdateLayout, _parentWindow.ComponentList, _parentWindow.FixedComponentList)))
+                return;
+
+            double ShortestDistance = Math.Abs(_owningModel.SourceGridPoint.X - endGridPoint.X) + Math.Abs(_owningModel.SourceGridPoint.Y - endGridPoint.Y);
+
+            _owningModel.RecursiveRouteFinding(endGridPoint, _parentWindow.IsInDeleteMode, _parentWindow.SizeType, _parentWindow.ConnectorList, ShortestDistance, _owningModel, _parentWindow.ClosestGridPoint, _parentWindow.EvaluateSystem, 0, _parentWindow.MainPageUpdateLayout, _parentWindow.ComponentList, _parentWindow.FixedComponentList, _parentWindow.StopConnectorTutorial1, _parentWindow.StartConnectorTutorial2);
+        }
+
+        #region legacy code
+        //private bool IsBetweenPairWise(double a1, double a2, double b1, double b2)
+        //{
+        //    return (IsBetweenAbsolute(a1, b1, b2) ||  IsBetweenAbsolute(a2, b1, b2)) ||  (IsBetweenAbsolute(b1, a1, a2) ||  IsBetweenAbsolute(b2, a1, a2));
+        //}
+        //private bool IsBetweenAbsolute(double num, double lim1, double lim2, bool inclusive = false)
+        //{
+        //    return IsBetween(num, lim1, lim2, inclusive) || IsBetween(num, lim2, lim1, inclusive);
+        //}
+        //private bool IsBetween(double num, double lower, double upper, bool inclusive = false)
+        //{
+        //    return inclusive
+        //        ? lower <= num && num <= upper
+        //        : lower < num && num < upper;
+        //}
+        //private void RecursiveRouteFinding(GridPoint FinalDestination)
+        //{
+        //    double deltaX = Math.Abs(_owningModel.SourceGridPoint.X - FinalDestination.X);
+        //    double deltaY = Math.Abs(_owningModel.SourceGridPoint.Y - FinalDestination.Y);
+        //    Point generalDirection;
+        //    if (deltaX > deltaY)
+        //    {
+        //        if (_owningModel.SourceGridPoint.X > FinalDestination.X)
+        //            generalDirection = new Point(_owningModel.SourceGridPoint.X - 20, _owningModel.SourceGridPoint.Y);
+        //        else
+        //            generalDirection = new Point(_owningModel.SourceGridPoint.X + 20, _owningModel.SourceGridPoint.Y);
+        //    }
+        //    else if (deltaY > deltaX)
+        //    {
+        //        if (_owningModel.SourceGridPoint.Y > FinalDestination.Y)
+        //            generalDirection = new Point(_owningModel.SourceGridPoint.X, _owningModel.SourceGridPoint.Y - 20);
+        //        else
+        //            generalDirection = new Point(_owningModel.SourceGridPoint.X, _owningModel.SourceGridPoint.Y + 20);
+        //    }
+        //    else
+        //    {
+        //        //this case will be hit when the distance is equal. Having this General Direction means that the algorithm will prefer to move left in that case. 
+        //        //Next recursion will then always chose down (or up, depending on destination) and in that way a "staircase"-shaped connection will be made.
+        //        generalDirection = new Point(_owningModel.SourceGridPoint.X - 20, _owningModel.SourceGridPoint.Y);
+        //    }
+        //    GridPoint closest = parentWindow.ClosestGridPoint(generalDirection, _owningModel.SourceGridPoint, false, FinalDestination);
+        //    // den nye optional bool out1 closestGP bliver ikke brugt endnu. 
+        //    //den skal kun returnere null hvis der ingen ledige veje er. 
+        //    //den anden optional bool skal bruges så den undgå free input pins vedmindre punktet == final dest
+        //    ValidatingGridPointForConnection(closest);
+        //    _owningModel.XTarget = (int)(closest.X);
+        //    _owningModel.YTarget = (int)(closest.Y);
+        //    _owningModel.MakeArrowHead(/*_owningModel.GetCorrectTowardsDirection()*/);
+        //    //_startingPoint = new Point(0, 0);
+
+        //    ConnectorModel cm = CreateNewConnectorAndAssociatedTasks(closest);
+        //    //hvordan startes rekursionen??? skal noget af rekursionen rykkes ind out1 modellen
+            
+        //}
+        //private ConnectorModel CreateNewConnectorAndAssociatedTasks(GridPoint closest)
+        //{
+        //    ConnectorModel cm = null;
+        //    if (closest.Status == MainPage.GridStatus.isFree)
+        //    {
+        //        cm = new ConnectorModel(closest.X, closest.Y, _owningModel.SourceComponent, closest, _owningModel);
+        //        parentWindow.ConnectorList.Add(cm);
+        //        _owningModel.TargetConnector = cm;
+        //    }
+        //    else if (closest.Status == MainPage.GridStatus.gotFreeInputComponentPin)
+        //    {
+        //        closest.OccupyingComponent.In[closest.OccupyingComponentLegIndex] = _owningModel.SourceComponent;
+        //        _owningModel.ReachedEnd = true;
+        //        //only works for non-rotating components, with input always on top.
+        //        _owningModel.SetCorrectConnectorEnding((int)parentWindow.SizeType);
+
+        //        if (closest.OccupyingComponent.HasInputs)
+        //        {
+        //            foreach (ConnectorModel conmodel in parentWindow.ConnectorList)
+        //            {
+        //                if (conmodel.SourceComponent == closest.OccupyingComponent)
+        //                    conmodel.SetColorToGreen(true);
+        //            }
+        //        }
+
+        //        //dummy to ensure we get correct information about the final gridpoint of a series of connectors
+        //        cm = new ConnectorModel(closest.X, closest.Y, _owningModel.SourceComponent, closest, _owningModel);
+        //        parentWindow.ConnectorList.Add(cm);
+        //        _owningModel.TargetConnector = cm;
+        //        cm.IsReadyToBeUsed = false;
+        //    }
+
+        //    _owningModel.SetColorToGreen(_owningModel.SourceComponent.HasInputs);
+
+
+        //    _owningModel.IsReadyToBeUsed = false;
+        //    _owningModel.SourceGridPoint.HoleVisibility = Visibility.Visible;
+        //    if (parentWindow.SizeType != LevelSpecification.GridSizeTotal.large)
+        //        _owningModel.SourceGridPoint.PointVisibility = System.Windows.Visibility.Collapsed;
+        //    closest.Status = MainPage.GridStatus.gotConnector;
+        //    return cm;
+        //}
+        //private bool ValidatingGridPointForConnection(GridPoint gridPoint)
+        //{
+        //    if (gridPoint == null || parentWindow.IsInDeleteMode)
+        //    {
+        //        ConnectionFailure();
+        //        return false;
+        //    }
+
+        //    //sikre os imod cycles (kortslutning af kredsløbet)
+        //    if (gridPoint.OccupyingComponent != null)
+        //    {
+        //        if (gridPoint.OccupyingComponent == _owningModel.SourceComponent)
+        //        {
+        //            ConnectionFailure();
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
+        //private void ConnectionFailure()
+        //{
+        //    _owningModel.XTarget = _owningModel.XSource;
+        //    _owningModel.YTarget = _owningModel.YSource;
+        //    _owningModel.MakeArrowHead(/*_owningModel.GetCorrectTowardsDirection(true)*/);
+        //    //_startingPoint = new Point(0, 0);
+        //}
+        #endregion
+
+        private void LineMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            if (!_parentWindow.IsInDeleteMode)
+                return;// ArrowHeadLeftMouseDown(sender, e);
+            if (_owningModel == null)
+                _owningModel = (ConnectorModel)lightLine.GetBindingExpression(Polyline.StrokeThicknessProperty).DataItem;
+
+            ConnectorModel cm = _owningModel;
+            cm.IsReadyToBeUsed = true;
+            if (cm.ReachedEnd)
+            {
+                cm.ReachedEnd = false;
+                cm.TargetConnector.SourceGridPoint.OccupyingComponent.In[cm.TargetConnector.SourceGridPoint.OccupyingComponentLegIndex] = null;
+                cm.SpecialEndingLine = new PointCollection();
+                cm.SpecialEndingLightLine = new PointCollection();
+            }
+            cm.XTarget = cm.XSource;
+            cm.YTarget = cm.YSource;
+            if (cm.SourceConnector != null)
+                cm.MakeArrowHead(/*cm.SourceConnector.GetCorrectTowardsDirection()*/);
+            else
+                cm.MakeArrowHead(/*ConnectorModel.TowardsDirections.Down*/);
+            while (cm.TargetConnector != null) 
+            {
+                if (cm.ReachedEnd)
+                {
+                    cm.TargetConnector.SourceGridPoint.OccupyingComponent.In[cm.TargetConnector.SourceGridPoint.OccupyingComponentLegIndex] = null;
+                //    foreach (ConnectorModel conmodel in _parentWindow.ConnectorList)
+                //    {
+                //        if (conmodel.SourceComponent == cm.TargetConnector.SourceGridPoint.OccupyingComponent)
+                //            conmodel.SetColorToGreen(false);
+                //    }
+                }
+                cm.TargetConnector.PrepareForDeletion(false, _parentWindow.MainPageUpdateLayout);
+                _parentWindow.ConnectorList.Remove(cm.TargetConnector);
+                cm = cm.TargetConnector;
+            }
+            _owningModel.TargetConnector = null;
+
+            _parentWindow.EvaluateSystem(true);
+            _parentWindow.MainPageUpdateLayout();
+            //Large.MathComponentModel[] AllComponents = new Large.MathComponentModel[_parentWindow.ComponentList.Count+_parentWindow.FixedComponentList.Count];
+            //_parentWindow.ComponentList.CopyTo(AllComponents, 0);
+            //_parentWindow.FixedComponentList.CopyTo(AllComponents, _parentWindow.ComponentList.Count);
+            //foreach(Large.MathComponentModel comp in AllComponents)
+            //{
+            //    foreach(ConnectorModel conmodel in _parentWindow.ConnectorList)
+            //    {
+            //        if (conmodel.SourceComponent == comp)
+            //        {
+            //            conmodel.SetColorToGreen(comp.HasInputs);
+            //        }
+            //    }
+            //}
+        }
+    }
+}

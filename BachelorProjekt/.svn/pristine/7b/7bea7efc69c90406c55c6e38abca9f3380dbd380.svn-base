@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{125A69B1-5903-4BAE-B14B-8ED5C3535730}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Game2</RootNamespace>
+    <AssemblyName>Game2</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>Game2.xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>Game2.App</SilverlightAppEntry>
+    <TestPageFileName>Game2TestPage.html</TestPageFileName>
+    <CreateTestPage>true</CreateTestPage>
+    <ValidateXaml>true</ValidateXaml>
+    <EnableOutOfBrowser>false</EnableOutOfBrowser>
+    <OutOfBrowserSettingsFile>Properties\OutOfBrowserSettings.xml</OutOfBrowserSettingsFile>
+    <UsePlatformExtensions>false</UsePlatformExtensions>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <LinkedServerProject>
+    </LinkedServerProject>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Silverlight">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.Extensions.Silverlight.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.ComponentModel.DataAnnotations, Version=5.0.5.0, Culture=neutral, PublicKeyToken=ddd0da4d3e678217, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime">
+      <HintPath>..\packages\Microsoft.Bcl.1.0.19\lib\sl5\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.1.0.19\lib\sl5\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core">
+      <HintPath>$(TargetFrameworkDirectory)System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Controls.Data.Input, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Controls.Navigation, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AnchorPoint.cs" />
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BasePoint.cs" />
+    <Compile Include="ComponentSpecification.cs" />
+    <Compile Include="Component\BaseUserControlComponent.xaml.cs">
+      <DependentUpon>BaseUserControlComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\PlusMinusX\PlusMinusXComponent.xaml.cs">
+      <DependentUpon>PlusMinusXComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\PlusMinusX\PlusMinusXComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Splitter\SplitterComponent.xaml.cs">
+      <DependentUpon>SplitterComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Splitter\SplitterComponentModel.cs" />
+    <Compile Include="Component\StaticComponents\BoardIn\BoardIn.xaml.cs">
+      <DependentUpon>BoardIn.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\StaticComponents\BoardIn\BoardInModel.cs" />
+    <Compile Include="Component\StaticComponents\BoardOut\BoardOut.xaml.cs">
+      <DependentUpon>BoardOut.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\StaticComponents\BoardOut\BoardOutModel.cs" />
+    <Compile Include="Component\Component2i1oModel.cs" />
+    <Compile Include="Component\Component2i2oModel.cs" />
+    <Compile Include="Component\Component1i2oModel.cs" />
+    <Compile Include="Component\Component2oModel.cs" />
+    <Compile Include="Component\MathComponentModel.cs" />
+    <Compile Include="Component\Component1i1oModel.cs" />
+    <Compile Include="Component\PlayableComponent\ConnectorCross\ConnectorCrossComponent.xaml.cs">
+      <DependentUpon>ConnectorCrossComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\ConnectorCross\ConnectorCrossComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Divide\DivideComponent.xaml.cs">
+      <DependentUpon>DivideComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Divide\DivideComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Filter\FilterComponent.xaml.cs">
+      <DependentUpon>FilterComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Filter\FilterComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Minus\MinusComponent.xaml.cs">
+      <DependentUpon>MinusComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Minus\MinusComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Multiply\MultiplyComponent.xaml.cs">
+      <DependentUpon>MultiplyComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Multiply\MultiplyComponentModel.cs" />
+    <Compile Include="Component\PlayableComponent\Plus\PlusComponent.xaml.cs">
+      <DependentUpon>PlusComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Component\PlayableComponent\Plus\PlusComponentModel.cs" />
+    <Compile Include="Component\Subcomponents\OutputSubComponent.cs" />
+    <Compile Include="Component\SuperComponentModel.cs" />
+    <Compile Include="Connector\Connector.xaml.cs">
+      <DependentUpon>Connector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Connector\ConnectorModel.cs" />
+    <Compile Include="CustomCursor.cs" />
+    <Compile Include="DatabaseFunctions.cs" />
+    <Compile Include="GridPoint.cs" />
+    <Compile Include="GridPointArea.cs" />
+    <Compile Include="LevelCollection.cs" />
+    <Compile Include="LevelSpecification.cs" />
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SolutionWizard.cs" />
+    <Compile Include="UI\MainMenu.xaml.cs">
+      <DependentUpon>MainMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MainMenuChooseLevelUi.xaml.cs">
+      <DependentUpon>MainMenuChooseLevelUi.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MainMenuModel.cs" />
+    <Compile Include="UI\TeacherClient.xaml.cs">
+      <DependentUpon>TeacherClient.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ScoreScreen.xaml.cs">
+      <DependentUpon>ScoreScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ScoreScreenModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Page Include="Component\BaseUserControlComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\ConnectorCross\ConnectorCrossComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\Divide\DivideComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Component\PlayableComponent\Filter\FilterComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\Minus\MinusComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\Multiply\MultiplyComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\PlusMinusX\PlusMinusXComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Component\PlayableComponent\Plus\PlusComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\PlayableComponent\Splitter\SplitterComponent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Component\StaticComponents\BoardIn\BoardIn.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Component\StaticComponents\BoardOut\BoardOut.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Connector\Connector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\MainMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\MainMenuChooseLevelUi.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\TeacherClient.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ScoreScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="levelfile.dtd" />
+    <None Include="packages.config" />
+    <None Include="Properties\AppManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Connector\ArrowHead.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cogwheel.png" />
+    <Resource Include="Images\Lightning1.png" />
+    <Resource Include="Images\Lightning2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\BoardOut\BoardOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\BoardIn\BoardIn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\ConnectorCross\ConnectorCrossGG.png" />
+    <Resource Include="Images\Components\ConnectorCross\ConnectorCrossGR.png" />
+    <Resource Include="Images\Components\ConnectorCross\ConnectorCrossRG.png" />
+    <Resource Include="Images\Components\ConnectorCross\ConnectorCrossRR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\Minus\MinusGG.png" />
+    <Resource Include="Images\Components\Minus\MinusGR.png" />
+    <Resource Include="Images\Components\Minus\MinusRG.png" />
+    <Resource Include="Images\Components\Minus\MinusRR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Hovedmenu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\Plus\PlusGG.png" />
+    <Resource Include="Images\Components\Plus\PlusGR.png" />
+    <Resource Include="Images\Components\Plus\PlusRG.png" />
+    <Resource Include="Images\Components\Plus\PlusRR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Tile3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Screw.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Hovedmenu2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\OutScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\DeleteHammer.png" />
+    <Resource Include="Images\box2.png" />
+    <Resource Include="Images\smoke2.png" />
+    <Resource Include="Images\PauseNoText.png" />
+    <Resource Include="Images\GrayedOut.png" />
+    <Resource Include="Images\Robot.png" />
+    <Resource Include="Images\RobotBroken.png" />
+    <Resource Include="Images\spark.png" />
+    <Resource Include="Images\Lightning3.png" />
+    <Content Include="Images\blocker.png" />
+    <Resource Include="Images\lock.png" />
+    <Resource Include="Images\LightningBoard.png" />
+    <Resource Include="Images\LevelSelectBackground3.png" />
+    <Resource Include="Images\FixedHead.png" />
+    <Resource Include="Images\FixedLeftArm.png" />
+    <Resource Include="Images\FixedRightArm.png" />
+    <Resource Include="Images\FixedTorso.png" />
+    <Resource Include="Images\HappyFace.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus100GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus100RR.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus10GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus10RR.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus1GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Plus1RR.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus100GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus100RR.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus10GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus10RR.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus1GG.png" />
+    <Resource Include="Images\Components\PlusMinusX\Minus1RR.png" />
+    <Resource Include="Images\Components\Splitter\SplitterGG.png" />
+    <Resource Include="Images\Components\Splitter\SplitterRR.png" />
+    <Content Include="Images\HtmlBackground.png" />
+    <Content Include="Images\maps1alpha.png" />
+    <Resource Include="Images\WireBlue.png" />
+    <Resource Include="Images\WireRed.png" />
+    <Resource Include="Images\Wires.png" />
+    <Resource Include="Images\MenuBar3.png" />
+    <Resource Include="Images\ScoreScreen\ScoreScreen_b.png" />
+    <Resource Include="Images\ScoreScreen\ScoreScreen_g.png" />
+    <Resource Include="Images\ScoreScreen\ScoreScreen_s.png" />
+    <Resource Include="Images\ScoreScreen\button.png" />
+    <Resource Include="Images\ScoreScreen\Scorescreen_galt.png" />
+    <Content Include="Media\BackgroundMusic.mp3" />
+    <Content Include="Media\conveyor-belt-sound-effect.mp3" />
+    <Content Include="Media\SmokeExplosion.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\Multiply\MultiplyGG.png" />
+    <Resource Include="Images\Components\Multiply\MultiplyRR.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Components\Divide\DivideGG.png" />
+    <Resource Include="Images\Components\Divide\DivideRR.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\Components\Filter\Filter100GG.png" />
+    <Resource Include="Images\Components\Filter\Filter100RR.png" />
+    <Resource Include="Images\Components\Filter\Filter10GG.png" />
+    <Resource Include="Images\Components\Filter\Filter10RR.png" />
+    <Resource Include="Images\Components\Filter\Filter1GG.png" />
+    <Resource Include="Images\Components\Filter\Filter1RR.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />
+</Project>

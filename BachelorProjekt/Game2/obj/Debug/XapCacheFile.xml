@@ -1,0 +1,18 @@
+﻿<xapCache source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Bin\Debug\Game2.xap" wasSigned="False" certificateThumbprint="" TimeStampUrl="" lastWriteTime="27-06-2013 15:18:08">
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\obj\Debug\Game2.dll" archivePath="Game2.dll" lastWriteTime="27-06-2013 15:18:04" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.dll" archivePath="Microsoft.Threading.Tasks.dll" lastWriteTime="27-06-2013 12:48:36" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.Extensions.dll" archivePath="Microsoft.Threading.Tasks.Extensions.dll" lastWriteTime="27-06-2013 12:48:36" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\packages\Microsoft.Bcl.Async.1.0.16\lib\sl4\Microsoft.Threading.Tasks.Extensions.Silverlight.dll" archivePath="Microsoft.Threading.Tasks.Extensions.Silverlight.dll" lastWriteTime="27-06-2013 12:48:36" />
+  <file source="C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.ComponentModel.DataAnnotations.dll" archivePath="System.ComponentModel.DataAnnotations.dll" lastWriteTime="18-11-2011 17:40:20" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\packages\Microsoft.Bcl.1.0.19\lib\sl5\System.Runtime.dll" archivePath="System.Runtime.dll" lastWriteTime="27-06-2013 12:48:39" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\packages\Microsoft.Bcl.1.0.19\lib\sl5\System.Threading.Tasks.dll" archivePath="System.Threading.Tasks.dll" lastWriteTime="27-06-2013 12:48:39" />
+  <file source="C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Controls.Data.Input.dll" archivePath="System.Windows.Controls.Data.Input.dll" lastWriteTime="18-11-2011 17:40:20" />
+  <file source="C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Controls.Navigation.dll" archivePath="System.Windows.Controls.Navigation.dll" lastWriteTime="18-11-2011 17:40:20" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Images\blocker.png" archivePath="Images\blocker.png" lastWriteTime="27-06-2013 12:48:33" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Images\HtmlBackground.png" archivePath="Images\HtmlBackground.png" lastWriteTime="27-06-2013 12:48:33" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Images\maps1alpha.png" archivePath="Images\maps1alpha.png" lastWriteTime="27-06-2013 12:48:33" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Media\BackgroundMusic.mp3" archivePath="Media\BackgroundMusic.mp3" lastWriteTime="27-06-2013 12:48:29" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Media\conveyor-belt-sound-effect.mp3" archivePath="Media\conveyor-belt-sound-effect.mp3" lastWriteTime="27-06-2013 12:48:29" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Media\SmokeExplosion.mp3" archivePath="Media\SmokeExplosion.mp3" lastWriteTime="27-06-2013 12:48:29" />
+  <file source="C:\Users\Jeppe\Documents\Visual Studio 2012\Projects\BachelorProjekt\Game2\Bin\Debug\AppManifest.xaml" archivePath="AppManifest.xaml" lastWriteTime="27-06-2013 14:23:48" />
+</xapCache>

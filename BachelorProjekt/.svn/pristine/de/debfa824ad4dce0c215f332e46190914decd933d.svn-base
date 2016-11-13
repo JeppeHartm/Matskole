@@ -1,0 +1,526 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using Game2.Component.PlayableComponent.Plus;
+using Game2.Component.PlayableComponent.Minus;
+using Game2.Component.PlayableComponent.Divide;
+using Game2.Component.PlayableComponent.Filter;
+using Game2.Component.PlayableComponent.Multiply;
+using Game2.Component.PlayableComponent.ConnectorCross;
+using Game2.Component.StaticComponents.BoardOut;
+using Game2.Component.PlayableComponent.Splitter;
+using Game2.Component.PlayableComponent.PlusMinusX;
+
+namespace Game2.Component
+{
+    public partial class BaseUserControlComponent : UserControl
+    {
+        public BaseUserControlComponent()
+        {
+            InitializeComponent();
+        }
+
+        private bool _leftDown = false;
+        private Point _startingPoint;
+        private Point _endPoint = new Point(0.1337, 0.1337);
+        private Point _initialPosOfOwningModel = new Point(0, 0);
+        protected MainPage _parentWindow;
+        protected MathComponentModel _owningModel;
+        protected AnchorPoint _anchorPointOfModel;
+        protected bool HasBeenMoved = false;
+        MathComponentModel _visualDummy = null;
+
+
+        protected void LeftMouseButtonDown(object sender, MouseButtonEventArgs e, Grid layoutRoot, object senderViewModel)
+        {
+            if (_owningModel == null)
+                SetOwningModelOfSenderViewModel(senderViewModel);
+            if (_owningModel.Locked) 
+                return;
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            if (_parentWindow.IsInDeleteMode)
+            {
+                //if (_owningModel.IsInToolbox)
+                //    return;
+                ////faking a mouseup event above the toolbox to ensure save deletion that follows normal procedures.
+                //_leftDown = true;
+                //_endPoint = new Point(_parentWindow.ToolboxAnchorPoints[0].X,_parentWindow.ToolboxAnchorPoints[0].Y);
+                //MouseUp(sender, e, layoutRoot, senderViewModel);
+                return;
+            }
+
+            layoutRoot.CaptureMouse();
+            _owningModel.CurrentAnchorPoint.Area.SetStatus(MainPage.GridStatus.isFree);            
+            _leftDown = true;
+            _initialPosOfOwningModel.X = _owningModel.X;
+            _initialPosOfOwningModel.Y = _owningModel.Y;
+            _startingPoint = e.GetPosition(this);
+            _parentWindow.CurrentlySelectedComponent = (BaseUserControlComponent)senderViewModel;
+
+            _parentWindow.SetComponentsZIndexOnTop();
+
+            if (!_owningModel.IsInToolbox)
+            {
+                _visualDummy = CreateVisualDummyForMovement(_owningModel);
+                _parentWindow.ComponentList.Insert(_parentWindow.ComponentList.IndexOf(_owningModel), _visualDummy);                
+            }
+        }
+
+        protected void LeftMouseButtonUp(object sender, MouseButtonEventArgs e, Grid layoutRoot, object senderViewModel)
+        {
+            if (!_leftDown) return;
+            if (_owningModel == null)
+                SetOwningModelOfSenderViewModel(senderViewModel);
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            if (!HasBeenMoved)
+                goto failure;
+            HasBeenMoved = false;
+            if (_owningModel.Locked || _parentWindow.IsInDeleteMode)
+                goto failure;
+
+            layoutRoot.ReleaseMouseCapture();
+            MouseUp(senderViewModel, e, layoutRoot, senderViewModel);
+            return;
+            failure:
+            foreach (GridPoint gp in _owningModel.CurrentAnchorPoint.Area.GridPointList)
+            {
+                gp.Status = gp.PreviousStatus;
+            }
+            _leftDown = false;
+            _owningModel.X = (int)_initialPosOfOwningModel.X;
+            _owningModel.Y = (int)_initialPosOfOwningModel.Y;
+            _startingPoint = new Point(0, 0);
+            CleanUpDummy(_parentWindow);
+            layoutRoot.ReleaseMouseCapture();
+            return;
+        }
+
+        private void MouseUp(object sender, MouseButtonEventArgs e, Grid layoutRoot, object senderViewModel)
+        {
+            _leftDown = false;
+
+            _parentWindow.SetComponentsZIndexOnBottom();
+
+            _parentWindow.CurrentlySelectedComponent = null;
+            _endPoint = new Point(_endPoint.X + (_owningModel.CompWidth / 2), _endPoint.Y + (_owningModel.CompHeight / 2));
+            AnchorPoint closest = _parentWindow.ClosestAnchorPoint(_endPoint, _owningModel.Type);
+            if (closest == null)
+                goto failure;
+            if (closest.IsInToolbox && _owningModel.IsInToolbox)
+                goto failure;
+
+            _anchorPointOfModel = _owningModel.CurrentAnchorPoint;
+            if (closest == _anchorPointOfModel)
+                goto failure;
+
+            AnchorPoint oldAnchorPoint = _owningModel.CurrentAnchorPoint;
+
+            _anchorPointOfModel = closest;
+            _owningModel.CurrentAnchorPoint = closest; //unnessecary????
+            HashSet<Game2.Connector.ConnectorModel> markedForDeletion = new HashSet<Game2.Connector.ConnectorModel>();
+            foreach (Game2.Connector.ConnectorModel cm in _parentWindow.ConnectorList)
+            {
+                if (_owningModel is Component2oModel)
+                {
+                    if (cm.SourceComponent is Subcomponents.OutputSubComponentModel)
+                    {
+                        if (((Component2oModel)_owningModel).Primary == cm.SourceComponent || ((Component2oModel)_owningModel).Secondary == cm.SourceComponent)
+                        {
+                            markedForDeletion.Add(cm);
+                        }
+                    }
+                }
+                if (cm.SourceComponent == _owningModel)
+                {
+                    markedForDeletion.Add(cm);
+                }
+                else if (cm.SourceComponent == _owningModel.In[0] || cm.SourceComponent == _owningModel.In[1])
+                {
+                    if (cm.SourceConnector != null)
+                        markedForDeletion.Add(cm);
+                    else
+                    {
+                        cm.TargetConnector = null;
+                        cm.ReachedEnd = false;
+                        cm.IsReadyToBeUsed = true;
+                        cm.XTarget = cm.XSource;
+                        cm.YTarget = cm.YSource;
+                        cm.MakeArrowHead(/*cm.GetCorrectTowardsDirection()*/);
+                        cm.SourceGridPoint.HoleVisibility = System.Windows.Visibility.Collapsed;
+                    }
+                }
+            }
+            foreach (Game2.Connector.ConnectorModel cm in markedForDeletion)
+            {
+                cm.PrepareForDeletion(true, _parentWindow.MainPageUpdateLayout, _owningModel);
+                _parentWindow.ConnectorList.Remove(cm);
+            }
+
+            foreach (GridPoint gp in oldAnchorPoint.Area.GridPointList)
+            {
+                gp.OccupyingComponent = null;
+            }
+            MathComponentModel[] AllComponents = new Component.MathComponentModel[_parentWindow.ComponentList.Count + _parentWindow.FixedComponentList.Count];
+            _parentWindow.ComponentList.CopyTo(AllComponents, 0);
+            _parentWindow.FixedComponentList.CopyTo(AllComponents, _parentWindow.ComponentList.Count);
+            foreach (MathComponentModel mcm in AllComponents)
+            {
+                if (mcm.In[0] == _owningModel)
+                    mcm.In[0] = null;
+                if (mcm.In[1] == _owningModel)
+                    mcm.In[1] = null;
+                if (_owningModel is Component2oModel)
+                {
+                    if (mcm.In[0] == ((Component2oModel)_owningModel).Primary || mcm.In[0] == ((Component2oModel)_owningModel).Secondary)
+                        mcm.In[0] = null;
+                    if (mcm.In[1] == ((Component2oModel)_owningModel).Primary || mcm.In[1] == ((Component2oModel)_owningModel).Secondary)
+                        mcm.In[1] = null;
+                }
+            }
+            foreach (BoardOutModel bom in _parentWindow.BoardOutList)
+            {
+                if (bom.In[0] == _owningModel)
+                    bom.In[0] = null;
+                if (bom.In[1] == _owningModel)
+                    bom.In[1] = null;
+                if (_owningModel is Component2oModel)
+                {
+                    if (bom.In[0] == ((Component2oModel)_owningModel).Primary || bom.In[0] == ((Component2oModel)_owningModel).Primary)
+                        bom.In[0] = null;
+                    if (bom.In[1] == ((Component2oModel)_owningModel).Secondary || bom.In[1] == ((Component2oModel)_owningModel).Secondary)
+                        bom.In[1] = null;
+                }
+            }
+
+            //if (!gridPoint.IsInToolbox)
+            //{//virker dette overhovedet?
+            //    gridPoint.Area.Status = MainPage.GridStatus.gotComponent;
+            //    gridPoint.Area.GridPointList[0].Status = MainPage.GridStatus.gotComponent;
+            //    gridPoint.Area.GridPointList[1].Status = MainPage.GridStatus.gotComponent;
+            //    if (gridPoint.Area.GridPointList.Count > 2)
+            //    {
+            //        gridPoint.Area.GridPointList[2].Status = MainPage.GridStatus.gotComponent;
+            //        gridPoint.Area.GridPointList[3].Status = MainPage.GridStatus.gotComponent;
+            //    }
+            //}
+
+            if (!closest.IsInToolbox && _owningModel.IsInToolbox)
+                TransferModelToComponentList(_owningModel);
+            else if (closest.IsInToolbox && !_owningModel.IsInToolbox)
+                TransferModelToToolboxList(_owningModel);
+
+            //_owningModel.X = (int)gridPoint.X - _owningModel.CompWidth / 2;
+            //_owningModel.Y = (int)gridPoint.Y - _owningModel.CompHeight / 2;
+
+            if (!closest.IsInToolbox)
+                closest.SnapAndSetStatus(_owningModel);
+
+            _owningModel.ImgSourcePath = _owningModel.ImgUriAltAllRed;
+
+            _startingPoint = new Point(0, 0);
+            _owningModel.In.SetValue(null, 0);
+            _owningModel.In.SetValue(null, 1);
+            _parentWindow.EvaluateSystem();
+
+            CleanUpDummy(_parentWindow);
+            _parentWindow.MainPageUpdateLayout();
+            return;
+            failure:
+            foreach (GridPoint gp in _owningModel.CurrentAnchorPoint.Area.GridPointList)
+            {
+                gp.Status = gp.PreviousStatus;
+            }
+            _owningModel.X = (int)_initialPosOfOwningModel.X;
+            _owningModel.Y = (int)_initialPosOfOwningModel.Y;
+            _startingPoint = new Point(0, 0);
+            CleanUpDummy(_parentWindow);
+            _parentWindow.MainPageUpdateLayout();
+        }
+
+        private MathComponentModel CreateVisualDummyForMovement(MathComponentModel owningModel)
+        {
+            MathComponentModel mcm = null;
+
+            if (owningModel is ConnectorCrossComponentModel)
+                mcm = new ConnectorCrossComponentModel(owningModel.CurrentAnchorPoint,owningModel.SizeMod);
+            else if (owningModel is DivideComponentModel)
+                mcm = new DivideComponentModel(owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is FilterComponentModel)
+                mcm = new FilterComponentModel(((FilterComponentModel)owningModel).Filters, owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is MinusComponentModel)
+                mcm = new MinusComponentModel(owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is MultiplyComponentModel)
+                mcm = new MultiplyComponentModel(owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is PlusComponentModel)
+                mcm = new PlusComponentModel(owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is SplitterComponentModel)
+                mcm = new SplitterComponentModel(owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+            else if (owningModel is PlusMinusXComponentModel)
+                mcm = new PlusMinusXComponentModel(((PlusMinusXComponentModel)owningModel).XX, ((PlusMinusXComponentModel)owningModel).PlusOrMinus, owningModel.CurrentAnchorPoint, owningModel.SizeMod);
+
+            mcm.X = (int)mcm.CurrentAnchorPoint.X - (mcm.CompWidth / 2);
+            mcm.Y = (int)mcm.CurrentAnchorPoint.Y - (mcm.CompHeight / 2);
+            mcm.ImgSourcePath = owningModel.ImgSourcePath;
+            mcm.CompOpacity = 0.50;
+
+            return mcm;
+        }
+        private void CleanUpDummy(MainPage _parentWindow)
+        {
+            _parentWindow.ComponentList.Remove(_visualDummy);
+            _visualDummy = null;
+        }
+
+        protected void MouseMoveEvent(object sender, MouseEventArgs e, object senderViewModel, Grid layoutRoot)
+        {
+            if (_owningModel == null)
+                SetOwningModelOfSenderViewModel(senderViewModel);
+            if (_owningModel.Locked)
+            {
+                layoutRoot.ReleaseMouseCapture();
+                _leftDown = false;
+                return;
+            }
+
+            if (!(_leftDown) || _startingPoint == new Point(0, 0)) return;
+            var mousePosition = e.GetPosition(_parentWindow.MainCanvas);
+            _owningModel.X = (int)(mousePosition.X - _startingPoint.X);
+            _owningModel.Y = (int)(mousePosition.Y - _startingPoint.Y);
+            if (_endPoint == null) _endPoint = new Point();
+            _endPoint.X = (mousePosition.X - _startingPoint.X);
+            _endPoint.Y = (mousePosition.Y - _startingPoint.Y);
+            HasBeenMoved = true;
+        }
+
+        #region private helper functions
+        private void SetOwningModelOfSenderViewModel(object senderViewModel)
+        {
+            if (senderViewModel is PlayableComponent.ConnectorCross.ConnectorCrossComponent)
+                ((PlayableComponent.ConnectorCross.ConnectorCrossComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Plus.PlusComponent)
+                ((PlayableComponent.Plus.PlusComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Minus.MinusComponent)
+                ((PlayableComponent.Minus.MinusComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Multiply.MultiplyComponent)
+                ((PlayableComponent.Multiply.MultiplyComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Divide.DivideComponent)
+                ((PlayableComponent.Divide.DivideComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Filter.FilterComponent)
+                ((PlayableComponent.Filter.FilterComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.Splitter.SplitterComponent)
+                ((PlayableComponent.Splitter.SplitterComponent)senderViewModel).SetOwningModelofSenderViewModel();
+            else if (senderViewModel is PlayableComponent.PlusMinusX.PlusMinusXComponent)
+                ((PlayableComponent.PlusMinusX.PlusMinusXComponent)senderViewModel).SetOwningModelofSenderViewModel();
+
+        }
+        private void TransferModelToComponentList(MathComponentModel owningModel)
+        {
+            _parentWindow = (MainPage)Application.Current.RootVisual;
+            LevelSpecification.ComponentType type = 0;
+            MathComponentModel cm;
+            if (owningModel is PlusComponentModel)
+            {
+                type = LevelSpecification.ComponentType.plus;
+                cm = new PlusComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            else if (owningModel is MinusComponentModel)
+            {
+                type = LevelSpecification.ComponentType.minus;
+                cm = new MinusComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            else if (owningModel is MultiplyComponentModel)
+            {
+                type = LevelSpecification.ComponentType.multiply;
+                cm = new MultiplyComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            else if (owningModel is DivideComponentModel)
+            {
+                type = LevelSpecification.ComponentType.divide;
+                cm = new DivideComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            else if (owningModel is FilterComponentModel)
+            {
+                cm = new FilterComponentModel(((FilterComponentModel)owningModel).Filters, new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+                type = (LevelSpecification.ComponentType)((FilterComponentModel)cm).Filters;
+            }
+            else if (owningModel is SplitterComponentModel)
+            {
+                type = LevelSpecification.ComponentType.splitter;
+                cm = new SplitterComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            else if (owningModel is PlusMinusXComponentModel)
+            {
+                cm = new PlusMinusXComponentModel(((PlusMinusXComponentModel)owningModel).XX, ((PlusMinusXComponentModel)owningModel).PlusOrMinus, new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+                if (((PlusMinusXComponentModel)owningModel).PlusOrMinus == PlusMinusXComponentModel.PlusFunc)
+                    type = (LevelSpecification.ComponentType)(((PlusMinusXComponentModel)cm).XX * 2);
+                else
+                    type = (LevelSpecification.ComponentType)(((PlusMinusXComponentModel)cm).XX * 3);
+            }
+            else
+            {
+                type = LevelSpecification.ComponentType.connectorcross;
+                cm = new ConnectorCrossComponentModel(new AnchorPoint(-10, -10, false, null), _parentWindow.CompSizeModifier);
+            }
+            int anchorPointIndex = _parentWindow.GetPlaceInToolbox(type);
+            cm.X = (int)_parentWindow.ToolboxAnchorPoints[anchorPointIndex].X - cm.CompWidth / 2;
+            cm.Y = (int)_parentWindow.ToolboxAnchorPoints[anchorPointIndex].Y - cm.CompHeight / 2;
+            cm.IsInToolbox = true;
+            cm.CurrentAnchorPoint = _parentWindow.ToolboxAnchorPoints[anchorPointIndex];
+            _parentWindow.ToolboxList.Add(cm);
+
+            _parentWindow.ToolboxList.Remove(owningModel);
+            owningModel.IsInToolbox = false;
+            _parentWindow.ComponentList.Add(owningModel);
+        }
+        private void TransferModelToToolboxList(MathComponentModel _owningModel)
+        {
+            _parentWindow.ComponentList.Remove(_owningModel);
+            #region garbage kode som dog måske skal bruges
+            /*int compType = 0;
+            if (owningModel is PlusComponentModel)
+            {
+                compType = 0;
+            }
+            else if (owningModel is MinusComponentModel)
+            {
+                compType = 1;
+            }
+            else if (owningModel is MultiplyComponentModel)
+            {
+                compType = 2;
+            }
+            else if (owningModel is DivideComponentModel)
+            {
+                compType = 3;
+            }
+            else if (owningModel is FilterComponentModel)
+            {
+                switch (((FilterComponentModel)owningModel).Filters)
+                {
+                    case 1:
+                        compType = 4;
+                        break;
+                    case 10:
+                        compType = 5;
+                        break;
+                    default:
+                        compType = 6;
+                        break;
+                }
+            }
+            else
+            {
+                compType = 7;
+            }
+
+            foreach (MathComponentModel comp in ToolboxList)
+            {
+                switch (compType)
+                {
+                    case 0:
+                        if (comp is PlusComponentModel)
+                            ToolboxList.Remove(comp);
+                            break;
+                    case 1:
+                            if (comp is MinusComponentModel)
+                                ToolboxList.Remove(comp);
+                            break;
+                    case 2:
+                            if (comp is MultiplyComponentModel)
+                                ToolboxList.Remove(comp);
+                            break;
+                    case 3:
+                            if (comp is MultiplyComponentModel)
+                                ToolboxList.Remove(comp);
+                            break;
+                    case 4:
+                            if (comp is FilterComponentModel)
+                                if (((FilterComponentModel)comp).Filters == 1)
+                                    ToolboxList.Remove(comp);
+                            break;
+                    case 5:
+                            if (comp is FilterComponentModel)
+                                if (((FilterComponentModel)comp).Filters == 10)
+                                    ToolboxList.Remove(comp);
+                            break;
+                    case 6:
+                            if (comp is FilterComponentModel)
+                                if (((FilterComponentModel)comp).Filters == 100)
+                                    ToolboxList.Remove(comp);
+                            break;
+                    default:
+                            if (comp is ConnectorCrossComponentModel)
+                                ToolboxList.Remove(comp);
+                            break;
+                }
+            }
+
+            owningModel.X = (int)ToolboxAnchorPoints[compType].X - owningModel.CompWidth / 2;
+            owningModel.Y = (int)ToolboxAnchorPoints[compType].Y - owningModel.CompHeight / 2;
+            owningModel.CurrentAnchorPoint = ToolboxAnchorPoints[compType];
+
+            ToolboxList.Add(owningModel);*/
+            #endregion
+        }
+        #endregion
+    }
+
+    //June 14th, 2010 by Colin Eberhardt
+    /* http://www.scottlogic.co.uk/blog/colin/2010/06/throttling-silverlight-mouse-events-to-keep-the-ui-responsive/ */
+    /// <summary>
+    /// Creates a 'throttled' MouseMove event which ensures that the UI
+    /// rendering is not starved.
+    /// </summary>
+    public class ThrottledMouseMoveEvent
+    {
+        private bool _awaitingRender = false;
+
+        private UIElement _element;
+
+        public ThrottledMouseMoveEvent(UIElement element)
+        {
+            _element = element;
+            element.MouseMove += new MouseEventHandler(Element_MouseMove);
+        }
+
+        public event MouseEventHandler ThrottledMouseMove;
+
+        private void Element_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_awaitingRender)
+            {
+                // if we are not awaiting a render as a result of a previously handled event
+                // raise a ThrottledMouseMove event, and add a Rendering handler so that
+                // we can determine when this event has been acted upon.
+                OnThrottledMouseMove(e);
+                _awaitingRender = true;
+                CompositionTarget.Rendering += CompositionTarget_Rendering;
+            }
+        }
+
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            _awaitingRender = false;
+            CompositionTarget.Rendering -= CompositionTarget_Rendering;
+        }
+
+        /// <summary>
+        /// Raises the ThrottledMouseMove event
+        /// </summary>
+        protected void OnThrottledMouseMove(MouseEventArgs args)
+        {
+            if (ThrottledMouseMove != null)
+            {
+                ThrottledMouseMove(_element, args);
+            }
+        }
+    }
+}

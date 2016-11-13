@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="Game2.UI.MainMenu"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" 
+    xmlns:UI="clr-namespace:Game2.UI"
+    mc:Ignorable="d"
+    Name="MainMenuView"
+    Height="{Binding MenuHeight, Mode=TwoWay}"
+    Width="{Binding MenuWidth, Mode=TwoWay}">
+
+    <Grid x:Name="LayoutRoot" Background="ForestGreen" Loaded="LayoutRoot_Loaded">
+        <Viewbox>
+            <Grid Name="ContainingGrid">
+                <Grid Name="UnderlyingGrid"/>
+                <!--<Rectangle Name="MainMenuBorder" Stroke="Black" StrokeThickness="4" Height="auto" Width="auto"/>-->
+                <StackPanel Margin="650,300,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <StackPanel.Resources>
+                        <Storyboard x:Name="Gear1Storyboard">
+                            <DoubleAnimation Storyboard.TargetName="Gear1Transform" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:5" RepeatBehavior="Forever" />
+                        </Storyboard>
+                    </StackPanel.Resources>
+                    <Image Source="/Game2;Component/Images/Cogwheel.png" Width="50" Height="50">
+                        <Image.RenderTransform>
+                            <RotateTransform x:Name="Gear1Transform" Angle="45" CenterX="25" CenterY="25"/>
+                        </Image.RenderTransform>
+                    </Image>
+                </StackPanel>
+                <StackPanel Margin="685,255,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <StackPanel.Resources>
+                        <Storyboard x:Name="Gear2Storyboard">
+                            <DoubleAnimation Storyboard.TargetName="Gear2Transform" Storyboard.TargetProperty="Angle" From="360" To="0" Duration="0:0:07" RepeatBehavior="Forever" />
+                        </Storyboard>
+                    </StackPanel.Resources>
+                    <Image Source="/Game2;Component/Images/Cogwheel.png" Width="70" Height="70">
+                        <Image.RenderTransform>
+                            <RotateTransform x:Name="Gear2Transform" Angle="45" CenterX="35" CenterY="35"/>
+                        </Image.RenderTransform>
+                    </Image>
+                </StackPanel>
+
+                <Image Name="RobotType" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Game2;Component/Images/Robot.png" Height="350" Visibility="{Binding LoggedInView}"></Image>
+                <Polygon Name="SpeecBalloonSec" Stroke="Black" StrokeThickness="3" Fill="AntiqueWhite"  Points="200,70,250,10,220,10" Visibility="{Binding LoggedInView}"></Polygon>
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" >
+                    <sdk:Label Content="Login!" Height="20" Margin="810,1,6,55" Foreground="Transparent"/>
+                    <Button Content="Login!" Height="20" Margin="810,1,6,55" Visibility="{Binding LoginView, Mode=TwoWay}" Click="Button_Click_Login"/>                    
+                    <Button Content="Opret ny bruger" Height="20" Margin="761,32,6,24" Visibility="{Binding LoginView, Mode=TwoWay}"  Click="Button_Click_CreateUser" />
+
+                    <TextBox Name="UsernameTextBox" Height="22" FontSize="10" TextWrapping="Wrap" Text="{Binding LoginFieldUsername}" Width="120" Visibility="{Binding LoginView}" Margin="481,1,267,56"/>
+                    <PasswordBox Name="PasswordTextBox" Height="22" FontSize="10" Password="{Binding LoginFieldPassword, Mode=TwoWay}" Width="120" Visibility="{Binding LoginView}" Margin="680,1,68,56"/>
+
+                    <!--<TextBlock Text="Skriv dit brugernavn og password og tryk på Login! knappen." FontSize="16" FontWeight="Bold" Foreground="AntiqueWhite" Visibility="{Binding LoginView}" Canvas.ZIndex="-10"/>-->
+                    <sdk:Label Content="Brugernavn:" Margin="406,3,392,0" VerticalAlignment="Top" Foreground="Transparent" />
+                    <sdk:Label Content="Brugernavn:" Margin="406,3,392,0" VerticalAlignment="Top" Visibility="{Binding LoginView}" />                    
+                    <sdk:Label Content="Password:" Margin="618,3,193,0" VerticalAlignment="Top" Visibility="{Binding LoginView}" />
+                    <sdk:Label Content="Har du ingen bruger? Opret en her!" Height="28" Margin="556,32,112,0" VerticalAlignment="Top" Foreground="Transparent"/>
+                    <sdk:Label Content="Har du ingen bruger? Opret en her!" Height="28" Margin="556,32,112,0" VerticalAlignment="Top" Visibility="{Binding LoginView}"/>
+                    <Rectangle Name="SpeechBalloonMain" Fill="AntiqueWhite" Stroke="black" StrokeThickness="3" Height="30" Width="600" RadiusX="20" RadiusY="20" Visibility="{Binding LoggedInView}" Canvas.ZIndex="-10" Margin="130,0,00,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Line Name="SpeechBalloonLineRemover" Stroke="AntiqueWhite" StrokeThickness="5" X1="215" Y1="28" X2="231" Y2="28" Visibility="{Binding LoggedInView}" Canvas.ZIndex="-10" />
+                    <TextBlock Text="{Binding UsernameMessage}" TextAlignment="Center" FontSize="12" FontWeight="Bold" Foreground="Black" Visibility="{Binding LoggedInView}" Canvas.ZIndex="-10" Margin="10,2,10,0" Name="WelcomeMessage"/> <!--SizeChanged="WelcomeMessage_SizeChanged"-->
+
+                </Grid>
+                <Image VerticalAlignment="Top"  Margin="213,51,203,0" Source="/Game2;component/Images/Hovedmenu2.png" Width="452" />
+                <!--<TextBlock VerticalAlignment="Top" TextAlignment="Center" Text="Hoved Menu" Foreground="Gold" FontWeight="Bold" FontSize="60" Margin="0,44,0,0"  />-->
+                <Button Content="{Binding StartButtonContent}" Height="40" IsEnabled="False" Click="Button_Click_NewContinue" VerticalAlignment="Top" Margin="234,131,232,0" Width="402" />
+                <Button Content="Vælg en bestemt bane" Name="ButtonChooseLevel" Height="40" IsEnabled="{Binding IsLoggedIn}" Click="Button_Click_ChooseLevel" VerticalAlignment="Top" Margin="234,176,232,0" Width="402" />
+                <Button Content="Highscore" Height="40" IsEnabled="False"  Click="Button_Click_Highscore" VerticalAlignment="Top" Margin="234,221,232,0" Width="402"/>
+                <StackPanel VerticalAlignment="Top" Margin="234,260,232,0" Width="402">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="0,6,0,0" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="Åben lærer klienten" Height="40" IsEnabled="{Binding IsLoggedIn}" Visibility="{Binding AdminUserVisibility}" Click="Button_Click_OpenAdminClient" Width="402" Name="AdminButton"/> <!--VerticalAlignment="Top" Margin="234,266,232,0"-->
+                    <Button Content="Log ud" Height="40" IsEnabled="{Binding IsLoggedIn}" Click="Button_Click_Logout" Width="402" Name="LogoutButton"/> <!--VerticalAlignment="Top" Margin="234,311,232,0"-->
+                </StackPanel>
+                <TextBlock Name="versionText" Text="Version" FontSize="10" FontWeight="Bold" Foreground="AntiqueWhite" VerticalAlignment="Top" Margin="636,351,105,0" />
+            </Grid>
+
+        </Viewbox>
+        <UI:TeacherClient Name="TeacherClientUi" Visibility="Collapsed"/>
+        <UI:MainMenuChooseLevelUi Name="ChooseLevelUi" Visibility="Collapsed"/>
+    </Grid>
+</UserControl>

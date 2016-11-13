@@ -1,0 +1,10 @@
+<!DOCTYPE level[
+<!ELEMENT level (grid,toolbox,fixedcomponent*,boardin+,boardout+)>
+<!ATTLIST grid size (small|medium|large) "small">
+<!ELEMENT toolbox (component*)>
+<!ELEMENT fixedcomponent (type,#PCDATA,#PCDATA)>
+<!ELEMENT component (type)>
+<!ELEMENT boardin (#PCDATA)>
+<!ELEMENT boardout (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+]>

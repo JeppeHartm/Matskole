@@ -1,0 +1,61 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk" x:Class="Game2.UI.TeacherClient"
+    mc:Ignorable="d"
+    >
+
+    <Grid x:Name="LayoutRoot" Background="White">
+        <Viewbox x:Name="ViewBox" Stretch="Uniform">
+            <Grid x:Name="GridOfViewBox" Width="1680" Height="900" >                
+                <Button Visibility="Collapsed" Content="Åben data for elev" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,518,0,0" VerticalAlignment="Top" Width="136" Click="Button_Click_Open"/>
+                <ListBox x:Name="ClassList" HorizontalAlignment="Left" Height="190" Margin="10,37,0,0" VerticalAlignment="Top" Width="136" SelectionChanged="ClassList_SelectionChanged"/>
+                <ListBox Name="StudentList" HorizontalAlignment="Left" Height="190" Margin="10,323,0,0" VerticalAlignment="Top" Width="136"/>
+
+                <sdk:Label Content="   Klasser:" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="10,4,0,0" VerticalAlignment="Top" Width="136"/>
+                <sdk:Label Content="    Elever:" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="10,290,0,0" VerticalAlignment="Top" Width="136"/>
+                <sdk:Label Content="Data for baner:" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="35,566,0,0" VerticalAlignment="Top" Width="176"/>
+                
+                <Polyline Points="0,0  0,730   1300,730" Stroke="Black" StrokeThickness="6" Margin="320,65,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="743" />
+                <Polyline Name="Plot" Points="0,730   300,630" Stroke="Red" StrokeThickness="4" Margin="326,65,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="724" Width="1316" >
+                </Polyline>
+
+                <ListBox Name="LevelSelection" HorizontalAlignment="Left" Height="230" Margin="10,599,0,0" VerticalAlignment="Top" Width="235" SelectionChanged="LevelSelection_SelectionChanged">
+                    <ListBoxItem Content="Venstre arm (nemme)" FontSize="16" FontWeight="Bold"/>
+                    <ListBoxItem Content="Højre arm (nemme)" FontSize="16" FontWeight="Bold"/>
+                    <ListBoxItem Content="Venstre+højre" FontSize="16" FontWeight="Bold"/>
+
+                    <ListBoxItem Content="Kroppen (medium)" FontSize="16" FontWeight="Bold"/>
+                    <ListBoxItem Content="Hovedet (svær)" FontSize="16" FontWeight="Bold"/>
+
+                    <ListBoxItem Content="Tilfældig (nem)" FontSize="16" FontWeight="Bold"/>
+                    <ListBoxItem Content="Tilfældig (medium)" FontSize="16" FontWeight="Bold"/>
+                    <ListBoxItem Content="Tilfældig (svær)" FontSize="16" FontWeight="Bold"/>
+
+                    <ListBoxItem Content="Total" FontSize="16" FontWeight="Bold"/>
+                </ListBox>
+                
+                <sdk:Label Content="Tid brugt på&#13;gennemførsel (s)" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="98" Margin="211,4,0,0" VerticalAlignment="Top" Width="210"/>
+                <sdk:Label Content="antal baner&#13;klaret før denne" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Height="71" Margin="1495,829,0,0" VerticalAlignment="Top" Width="185"/>
+
+                <sdk:Label Name="X20" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="580,805,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="X40" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="840,805,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="X60" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="1100,805,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="X80" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="1360,805,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="X100" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="1620,805,0,0" VerticalAlignment="Top"/>
+
+                <sdk:Label Name="Y20" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="270,649,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="Y40" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="270,503,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="Y60" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="270,357,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="Y80" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="270,211,0,0" VerticalAlignment="Top"/>
+                <sdk:Label Name="Y100" Content="" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="270,65,0,0" VerticalAlignment="Top"/>
+                
+
+
+                <Button Content="Exit" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,850,0,0" VerticalAlignment="Top" Width="120" Height="40" FontSize="25" Click="Button_Click_Exit" Loaded="TeacherClient_Loaded"/>
+            </Grid>
+        </Viewbox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,343 @@
+﻿using System;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Collections.Generic;
+using Game2.Component;
+using Game2.Component.PlayableComponent.Plus;
+using Game2.Component.PlayableComponent.Minus;
+using Game2.Component.PlayableComponent.Divide;
+using Game2.Component.PlayableComponent.Multiply;
+using Game2.Component.PlayableComponent.Filter;
+using Game2.Component.PlayableComponent.ConnectorCross;
+
+namespace Game2
+{
+    public class LevelSpecification
+    {
+        public Tuple<GridSizeX, GridSizeY> GridSize;
+        public List<FixedComponent> FixedComponents;
+        public List<ComponentType> Toolbox;
+        public List<int> BoardIn;
+        public List<int> BoardOut;
+        public enum SectionTypes { Head=100, LeftArm=200, RightArm=300, Torso=400, Custom=0 };
+        public SectionTypes SectionType = SectionTypes.Custom;
+        public List<int> RequiredLevelsToUnlock;
+        public int LevelNumber;
+        public bool IsEndlessLevel = false;
+        public int EndlessLevelDifficulty = -1;
+        public string HumanSolution = "";
+
+        public LevelSpecification(GridSizeTotal gridsize, List<FixedComponent> FixedComponents, List<ComponentType> Toolbox, List<int> BoardIn, List<int> BoardOut, SectionTypes sectionType, List<int> requiredLevelsToUnlock, int levelNumber, bool isEndlessLevel = false, int endlessLevelDifficulty = -1)
+            : this(gridsize, FixedComponents, Toolbox, BoardIn, BoardOut)
+        {
+            this.SectionType = sectionType;
+            this.RequiredLevelsToUnlock = requiredLevelsToUnlock;
+            this.LevelNumber = levelNumber;
+            this.IsEndlessLevel = isEndlessLevel;
+            this.EndlessLevelDifficulty = endlessLevelDifficulty;
+        }
+        public LevelSpecification(GridSizeTotal gridsize, List<FixedComponent> FixedComponents, List<ComponentType> Toolbox, List<int> BoardIn, List<int> BoardOut)
+        {
+            GridSizeX sizex;
+            GridSizeY sizey;
+            gridsize = GridSizeTotal.large;//disables all but large board sizes
+            switch (gridsize)
+            {
+                case GridSizeTotal.small:
+                    sizex = GridSizeX.small;
+                    sizey = GridSizeY.small;
+                    break;
+                case GridSizeTotal.medium:
+                    sizex = GridSizeX.medium;
+                    sizey = GridSizeY.medium;
+                    break;
+                case GridSizeTotal.large:
+                default:
+                    sizex = GridSizeX.large;
+                    sizey = GridSizeY.large;
+                    break;
+            }
+                    
+            GridSize = Tuple.Create<GridSizeX, GridSizeY>(sizex, sizey);
+            this.FixedComponents = FixedComponents;
+            this.Toolbox = Toolbox;
+            this.BoardIn = BoardIn;
+            this.BoardOut = BoardOut;
+        }
+        public static LevelSpecification GenerateLevelSpec(GridSizeTotal gridsize, List<FixedComponent> FixedComponents, List<ComponentType> Toolbox, List<int> BoardIn, SectionTypes sectionType, int levelNumber, bool ReqLevel = true)
+        {//to be used for the AI that generates levels
+            List<int> reqlvl = new List<int>();
+            if (ReqLevel)
+                reqlvl.Add(levelNumber-1);
+
+            return null; //null to be replaced with a level spec when level AI has been run
+        }
+        public static LevelSpecification GetTestLevelSpec(int WhichTestLevel = 0)
+        {               
+            List<FixedComponent> FixedComponents = new List<FixedComponent>(); 
+            List<ComponentType> Toolbox = new List<ComponentType>();
+            List<int> BoardIn = new List<int>();
+            List<int> BoardOut = new List<int>();
+            GridSizeTotal gst = GridSizeTotal.large;
+
+            switch (WhichTestLevel)
+            {
+                case 1: //plus tutorial
+                    gst = GridSizeTotal.small;
+                    Toolbox.Add(ComponentType.plus);
+
+                    BoardIn.Add(17);
+                    BoardIn.Add(13);
+
+                    BoardOut.Add(30);
+                    break;
+                case 2: //minus tutorial
+                    gst = GridSizeTotal.small;
+                    Toolbox.Add(ComponentType.minus);
+
+                    BoardIn.Add(11);
+                    BoardIn.Add(3);
+
+                    BoardOut.Add(8);
+                    break;
+                case 3: //divide tutorial 1
+                    gst = GridSizeTotal.small;
+                    Toolbox.Add(ComponentType.divide);
+
+                    BoardIn.Add(47);
+                    BoardIn.Add(99);
+
+                    BoardOut.Add(4);
+                    break;
+                case 4: //multiply tutorial 1
+                    gst = GridSizeTotal.small;
+                    Toolbox.Add(ComponentType.multiply);
+
+                    BoardIn.Add(9);
+                    BoardIn.Add(90);
+
+                    BoardOut.Add(900);
+                    break;
+                case 5: //plus collection level
+                    break;
+                case 6: //minus collection level
+                    break;
+                case 7: //divide tutorial 2
+                    break;
+                case 8: //multiply tutorial 2
+                    break;
+                case 9: //connectorsCross tutorial
+                    gst = GridSizeTotal.small;
+                    //Toolbox.Add(ComponentType.connectorcross);     // indtil nullpointer pga subcomps buggen er fixed så bruges fixed component for nemhedens skyld
+                    //FixedComponents.Add(new FixedComponent(ComponentType.connectorcross, 3, 2));
+                    BoardIn.Add(13);
+                    BoardIn.Add(31);
+
+                    BoardOut.Add(31);
+                    BoardOut.Add(13);
+                    break;
+                case 10: //Final collection level
+                    break;
+                case 0: //basic(empty) collection level
+                default:
+                    //FixedComponents.Add(new FixedComponent(ComponentType.plus, 4, 5));
+
+                    Toolbox.Add(ComponentType.plus);
+                    Toolbox.Add(ComponentType.minus);
+                    Toolbox.Add(ComponentType.divide);
+                    Toolbox.Add(ComponentType.multiply);
+                    Toolbox.Add(ComponentType.filter10);
+                    Toolbox.Add(ComponentType.connectorcross);
+
+                    BoardIn.Add(21);
+                    BoardIn.Add(27);
+                    BoardIn.Add(6);
+                    BoardIn.Add(123);
+                    BoardOut.Add(42);
+                    break;
+            }
+
+            List<int> reqlvl = new List<int>();
+            if (WhichTestLevel > 0)
+                reqlvl.Add(WhichTestLevel-1);
+            return new LevelSpecification(gst, FixedComponents, Toolbox, BoardIn, BoardOut, SectionTypes.Custom, reqlvl, WhichTestLevel + 1 + (int)SectionTypes.Custom);
+        }
+        public static LevelSpecification GetTestLevelSpecFromAi()
+        {
+            return null;
+            List<MathComponentModel> FixedComponentsForSol = new List<MathComponentModel>();
+            List<MathComponentModel> ToolboxForSol = new List<MathComponentModel>();
+            List<FixedComponent> FixedComponents = new List<FixedComponent>();
+            List<ComponentType> Toolbox = new List<ComponentType>();
+            List<ComponentType> CompsRequiredForSol = new List<ComponentType>();
+            List<int> BoardIn = new List<int>();
+            List<int> BoardOut = new List<int>();
+            GridSizeTotal gst = GridSizeTotal.large;
+
+            Toolbox.Add(ComponentType.plus);
+            Toolbox.Add(ComponentType.minus);
+            //Toolbox.Add(ComponentType.divide);
+            Toolbox.Add(ComponentType.multiply);
+            Toolbox.Add(ComponentType.filter10);
+            Toolbox.Add(ComponentType.connectorcross);
+
+            ToolboxForSol.Add(new PlusComponentModel(null, 0));
+            ToolboxForSol.Add(new MinusComponentModel(null, 0));
+            //ToolboxForSol.Add(new DivideComponentModel(null, 0));
+            ToolboxForSol.Add(new MultiplyComponentModel(null, 0));
+            ToolboxForSol.Add(new FilterComponentModel(10, null, 0));
+            ToolboxForSol.Add(new ConnectorCrossComponentModel(null, 0));
+
+            //CompsRequiredForSol.Add(ComponentType.multiply);
+
+            BoardIn.Add(21);
+            BoardIn.Add(27);
+            BoardIn.Add(6);
+            //BoardIn.Add(123);
+
+
+            List<int> reqlvl = new List<int>();
+
+            SolutionWizard SolWiz = new SolutionWizard();
+            //SolutionWizard.Solution sol = SolWiz.GenerateBoardOutsForGivenBoardIns(BoardIn, 2, ToolboxForSol, FixedComponentsForSol, 4, 3, CompsRequiredForSol, 1);
+            SolutionWizard.Solution sol = null;
+            int high = 0, low = 999;
+            foreach (int i in sol.CompsNeededForSol)
+            {
+                if (i > high)
+                    high = i;
+                if (i < low)
+                    low = i;
+            }
+            
+            //MessageBox.Show("There is at least " + sol.Occurences + " ways to complete this level. The quickest solutions need "+low+" comps, and slowest need " + high+ " comps.");
+
+            return new LevelSpecification(gst, FixedComponents, Toolbox, BoardIn, sol.BoardOuts, SectionTypes.Custom, reqlvl, 20 + (int)SectionTypes.Custom);
+        }
+
+        public static List<LevelSpecification> GetLevelSpecForSection(SectionTypes WhichSection)
+        {
+            List<FixedComponent> FixedComps = new List<FixedComponent>();
+            List<ComponentType> Toolbox = new List<ComponentType>();
+            List<int> BoardIn = new List<int>();
+            List<int> BoardOut = new List<int>();
+            GridSizeTotal gst = GridSizeTotal.large;
+
+            LevelSpecification ls;
+            List<LevelSpecification> LsList = new List<LevelSpecification>();
+            List<int> ReqLvls;
+            int NumberOfLvlsInSection = LevelCollection.GetListFromSection(WhichSection).Count;
+
+            for (int i = 0; i < NumberOfLvlsInSection; i++)
+            {
+                if (i == 0 && WhichSection != SectionTypes.Custom)
+                    ReqLvls = new List<int>() { LevelCollection.GetListFromSection(SectionTypes.Custom).Count-1 };     
+                else if (i == 0 && WhichSection == SectionTypes.Custom)
+                    ReqLvls = new List<int>();    
+                else
+                    ReqLvls = new List<int>() { (i+((int)WhichSection)-1) };
+
+                if (WhichSection == SectionTypes.Torso)
+                {
+                    ReqLvls.Add(((int)LevelSpecification.SectionTypes.LeftArm) + 3);
+                    ReqLvls.Add(((int)LevelSpecification.SectionTypes.RightArm) + 3);
+                }
+                else if (WhichSection == SectionTypes.Head)
+                {
+                    ReqLvls.Add(((int)LevelSpecification.SectionTypes.Torso) + 2);
+                }
+                PopulateFixedCompToolboxBoardinBoardoutForLevelInSection(i, WhichSection, out FixedComps, out Toolbox, out BoardIn, out BoardOut);
+
+                ls = new LevelSpecification(gst, FixedComps, Toolbox, BoardIn, BoardOut, WhichSection, ReqLvls, i + ((int)WhichSection));
+
+                LsList.Add(ls);
+            }
+
+            return LsList;
+        }
+
+        /// <summary>
+        ///  <para>-----</para>
+        /// <para>Generates a random level. No garauntees are made in regards to difficulty.</para>
+        /// <para>-----</para>
+        /// <para>0 is easy, 1 is medium and 2 is hard. Other values are considering as 2.</para>
+        /// <para>-----</para>
+        /// </summary>
+        /// <param name="difficulty"></param>
+        /// <returns></returns>
+        public static LevelSpecification GenerateRandomLevelSpec(int difficulty, int lvlIdForLastTutorialLevel)
+        {
+            SolutionWizard solwiz = new SolutionWizard();
+            Game2.SolutionWizard.Solution sol = solwiz.GetRandomLevel(difficulty);
+            LevelSpecification ls;
+            switch(difficulty)
+            {
+                case 0:
+                    ls = new LevelSpecification(GridSizeTotal.large, new List<FixedComponent>(), sol.Toolbox, sol.BoardIns, sol.BoardOuts, SectionTypes.Custom, new List<int>() { lvlIdForLastTutorialLevel }, -1, true, 0);
+                    break;
+                case 1:
+                    ls = new LevelSpecification(GridSizeTotal.large, new List<FixedComponent>(), sol.Toolbox, sol.BoardIns, sol.BoardOuts, SectionTypes.Custom, new List<int>() { lvlIdForLastTutorialLevel }, -2, true, 1);
+                    break;
+                case 2:
+                default:
+                    ls = new LevelSpecification(GridSizeTotal.large, new List<FixedComponent>(), sol.Toolbox, sol.BoardIns, sol.BoardOuts, SectionTypes.Custom, new List<int>() { lvlIdForLastTutorialLevel }, -3, true, 2);
+                    break;
+            }
+            ls.HumanSolution = sol.HumanSolution;
+            return ls;
+        }
+
+        private static void PopulateFixedCompToolboxBoardinBoardoutForLevelInSection(int LevelNumberInSection, SectionTypes WhichSection, out List<FixedComponent> FixedComps, out List<ComponentType> Toolbox, out List<int> BoardIns, out List<int> BoardOuts)
+        {
+            ResultCollection rc;
+            switch (WhichSection)
+            {
+                case SectionTypes.Head:
+                    rc = LevelCollection.LevelCollectionHeadList[LevelNumberInSection]();
+                    break;
+                case SectionTypes.Torso:
+                    rc = LevelCollection.LevelCollectionTorsoList[LevelNumberInSection]();
+                    break;
+                case SectionTypes.LeftArm:
+                    rc = LevelCollection.LevelCollectionLeftArmList[LevelNumberInSection]();
+                    break;
+                case SectionTypes.RightArm:
+                    rc = LevelCollection.LevelCollectionRightArmList[LevelNumberInSection]();
+                    break;
+                case SectionTypes.Custom:
+                default:
+                    rc = LevelCollection.LevelCollectionTutorialList[LevelNumberInSection]();
+                    break;
+            }
+
+            FixedComps = rc.FixedComps;
+            Toolbox = rc.Toolbox;
+            BoardIns = rc.BoardIns;
+            BoardOuts = rc.BoardOuts;
+
+        }
+
+        public class FixedComponent
+        {
+            public FixedComponent(ComponentType t, double x, double y)
+            {
+                type = t;
+                this.x = x;
+                this.y = y;
+            }
+            public double x, y;
+            public ComponentType type;
+        }
+        public enum GridSizeTotal { small = 4, medium = 5, large = 6 }
+        public enum GridSizeX { small = 6, medium = 12, large = 18 }
+        public enum GridSizeY { small = 4, medium = 8, large = 12 }
+        public enum ComponentType { filter1 = 1, filter10 = 10, filter100 = 100, plus1 = 2, plus10 = 20, plus100 = 200, minus1 = 3, minus10 = 30, minus100 = 300, plus, minus, multiply, divide, connectorcross, splitter }
+    }
+}
